@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>討論: {{ theme }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            padding: 20px;
+            /* margin: 0 auto; */
+        }
+        .chat-container {
+            /* width: 70%; */
+            max-width: 800px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .result-container {
+            /* width: 70%; */
+            max-width: 800px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            text-align: center;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+            z-index: 1;
+        }
+        .chat-window {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        .message-container {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .message-container.left {
+            justify-content: flex-start;
+        }
+        .message-container.right {
+            justify-content: flex-end;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 60%;
+            word-wrap: break-word;
+        }
+        .ai1-message {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            align-self: flex-start;
+            font-style: italic;
+        }
+        .ai2-message {
+            background-color: #cfe2ff;
+            color: #084298;
+            align-self: flex-end;
+            font-weight: bold;
+        }
+        .ai-message {
+            background-color: #cfe2ff;
+            color: #084298;
+            align-self: flex-start;
+            font-weight: bold;
+        }
+        .user-message {
+            background-color: #f8d7da;
+            color: #842029;
+            align-self: flex-end;
+        }
+        .enemy-message {
+            background-color: #94e4d4;
+            color: #208484;
+            align-self: flex-start;
+
+        }
+        .judge-message {
+            background-color: #ffeeba;
+            color: #856404;
+            font-weight: bold;
+            text-align: center;
+        }
+        .unknown-message {
+            background-color: #e2e3e5;
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+        }
+        .system-message {
+            background-color: #e2e3e5;
+            color: #6c757d;
+            font-style: italic;
+            text-align: center;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .input-container input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        .input-container button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .input-container button:hover {
+            background-color: #0056b3;
+        }
+        .chat-contents{
+            display: flex;
+            justify-content: space-around;
+        }
+        .center-contents{
+            width: 50%;
+        }
+        .left-contents{
+            width: 20%;
+            text-align: center;
+        }
+        .right-contents{
+            width: 20%;
+            text-align: center;
+        }
+
+        .chat-icon {
+            width: 40px;  /* アイコンのサイズ */
+            height: 40px;
+            border-radius: 50%;
+            margin: 0 10px;
+            object-fit: cover;
+        }
+        .message-container {
+            display: flex;
+            align-items: center;
+        }
+        .left .chat-icon {
+            order: -1; /* 左側のメッセージはアイコンを左に */
+        }
+        .right .chat-icon {
+            order: 1; /* 右側のメッセージはアイコンを右に */
+        }
+        .form-btn{
+            display: flex;
+            justify-content: space-evenly;
+        }
+
+        #main-container {
+            /* display: flex; */
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #chat-contents {
+            display: block; /* デフォルトで表示 */
+        }
+
+        #result-container {
+            display: none; /* 初期状態で非表示 */
+        }
+
+        #main-container .active {
+            display: block;
+        }
+
+        #main-container .inactive {
+            display: none;
+        }
+        .right-main{
+            color: #cfe2ff;
+        }
+        .result-chat button{
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-contents">
+        <div class="left-contents">
+            <h2>AIキャラクター</h2>
+            <img src="{{ url_for('static', filename='images/ai.png') }}" style="width: 250px; height: 250px; overflow: hidden; object-fit: cover; border-radius: 12px;">
+        </div>
+        <!-- 固定ヘッダー -->
+        <div class="center-contents">
+            <div class="header">
+                <h1 style="text-align: center; margin: 0 auto; font-size: 25px;">テーマ: {{ theme }}</h1>
+                <div style="display: flex; justify-content: space-evenly;">
+                    {% if mode == "AIと人"%}
+                        <h3>AIの立場: {{position1}}</h3>
+                        <h3>ユーザーの立場: {{position2}}</h3>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="main_container" id="main-container">
+                <div class="chat-container active" id="chat-container">
+                    <!-- チャットウィンドウ -->
+                    {% if messages %}
+                        <div class="chat-window" id="chat-window">
+                            {% for message in messages %}
+                            <div class="message-container
+                                {% if message.role == 'AI1' %}left ai1-message-container
+                                {% elif message.role == 'AI2' %}right ai2-message-container
+                                {% elif message.role == 'AI' %}left ai-message-container
+                                {% elif message.role == 'User' %}right user-message-container
+                                {% elif message.role == 'Judge' %}judge-message-container
+                                {% elif message.role == 'enemy' %}left enemy-message-container
+                                {% elif message.role == 'system' %}system-message-container
+                                {% else %}unknown-message-container{% endif %}">
+                                
+                                {% if message.role in ['AI1', 'AI', 'enemy'] %}
+                                    <img src="{{ url_for('static', filename='images/ai.png') }}" class="chat-icon" alt="AIキャラ">
+                                {% endif %}
+                                {% if message.role in ['system'] %}
+                                    <img src="{{ url_for('static', filename='images/tenbin.png') }}" class="chat-icon" alt="AIキャラ">
+                                {% endif %}
+                                
+                                <div class="message 
+                                    {% if message.role == 'AI1' %}ai1-message
+                                    {% elif message.role == 'AI2' %}ai2-message
+                                    {% elif message.role == 'AI' %}ai-message
+                                    {% elif message.role == 'User' %}user-message
+                                    {% elif message.role == 'Judge' %}judge-message
+                                    {% elif message.role == 'enemy' %}enemy-message
+                                    {% elif message.role == 'system' %}system-message
+                                    {% else %}unknown-message{% endif %}">
+                                    {{ message.content | safe }}
+                                </div>
+                                
+                                {% if message.role == 'User' %}
+                                    <img src="{{ url_for('static', filename='images/user.png') }}" class="chat-icon" alt="ユーザーキャラ">
+                                {% endif %}
+                            </div>
+                        
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>メッセージはまだありません。</p>
+                    {% endif %}
+
+
+                    <!-- 入力フォーム -->
+                    <form method="POST" class="input-container" id="chat-form">
+                        <input type="text" name="user_message" placeholder="メッセージを入力してください">
+                        <button type="submit">送信</button>
+                    </form>
+                    <div class="form-btn">
+                        <form method="POST" class="input-container" style="justify-content: center;">
+                            <button type="submit" name="clear_history" value="1">履歴を削除</button>
+                        </form>
+
+
+                        <form method="POST" class="input-container" style="justify-content: center;">
+                            <button type="submit" name="judge" value="judge">AIに判定を求める</button>
+                        </form>
+                        <form method="POST" class="input-container" style="justify-content: center;">
+                            <button type="submit" name="home" value="home">戻る</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="result-container inactive" id="result-container">
+                    <h2 class="result-message">討論結果 勝者{{judgment}}</h2>
+                    <div class="result-main">
+                        {{ judge_result | safe }}
+                    </div>
+                    
+                    <div class="form-btn">
+                        <div class="result-chat" style="justify-content: center; margin-top: 20px;" >
+                            <button type="button" id="chat-button">チャット</button>
+                        </div>
+                        <form method="POST" class="input-container" style="justify-content: center;">
+                            <button type="submit" name="home" value="home">戻る</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right-contents">
+            <h2>人キャラクター</h2>
+            <img src="{{ url_for('static', filename='images/user.png') }}"  style="width: 250px; height: 250px; overflow: hidden; object-fit: cover; border-radius: 12px;">
+        </div>
+        {{result | safe}}
+        
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var chatWindow = document.getElementById("chat-window");
+                if (chatWindow) {
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }
+            });
+            document.getElementById("chat-form").addEventListener("keypress", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();  // ページリロード防止
+                    this.submit();
+                }
+            });
+
+            
+
+            document.getElementById('chat-button').addEventListener('click', function() {
+                // 結果部分を非表示にする
+                document.getElementById('result-container').classList.remove('active');
+                document.getElementById('result-container').classList.add('inactive');
+
+                // チャット部分を表示する
+                document.getElementById('chat-container').classList.remove('inactive');
+                document.getElementById('chat-container').classList.add('active');
+            });
+
+            function changeresult() {
+                document.getElementById("chat-container").classList.remove("active");
+                document.getElementById("chat-container").classList.add("inactive");
+                
+                document.getElementById("result-container").classList.remove("inactive");
+                document.getElementById("result-container").classList.add("active");
+            }
+
+        </script>
+</body>
+</html>

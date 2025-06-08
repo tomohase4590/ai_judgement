@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テーマ選択</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">討論テーマを選択</h1>
+        <form method="POST" action="/start-debate">
+            <!-- ジャンル選択 -->
+            <div class="mb-3">
+                <label for="genre" class="form-label">ジャンルを選択 (任意)</label>
+                <select class="form-select" id="genre" name="genre">
+                    <option value="" selected>ジャンルを選んでください (任意)</option>
+                    {% for genre in genres %}
+                        <option value="{{ genre }}">{{ genre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- テーマ選択 -->
+            <div class="mb-3">
+                <label for="theme" class="form-label">テーマを選択または入力</label>
+                <select class="form-select" id="theme-suggestions">
+                    <option value="" disabled selected>提案されたテーマを選ぶか、入力してください</option>
+                </select>
+                <input type="text" class="form-control mt-2" id="theme" name="theme" placeholder="例: AIの未来" required>
+            </div>
+
+            <!-- ポジション1入力 -->
+            <div class="mb-3">
+                <label for="position1" class="form-label">AIのポジション</label>
+                <input type="text" class="form-control" id="position1" name="position1" placeholder="例: 賛成" required>
+            </div>
+
+            <!-- ポジション2入力 -->
+            <div class="mb-3">
+                <label for="position2" class="form-label">ユーザーのポジション</label>
+                <input type="text" class="form-control" id="position2" name="position2" placeholder="例: 反対" required>
+            </div>
+
+            <!-- 開始ボタン -->
+            <button type="submit" class="btn btn-primary">開始</button>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.1/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const genreSelect = document.getElementById('genre');
+        const themeSuggestions = document.getElementById('theme-suggestions');
+        const themeInput = document.getElementById('theme');
+
+        // ジャンル変更時のテーマ提案
+        genreSelect.addEventListener('change', () => {
+            const selectedGenre = genreSelect.value;
+
+            // サーバーにリクエストを送信
+            fetch('/get-themes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ genre: selectedGenre })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // テーマ候補を更新
+                themeSuggestions.innerHTML = '<option value="" disabled selected>提案されたテーマを選んでください</option>';
+                data.forEach(theme => {
+                    const option = document.createElement('option');
+                    option.value = theme;
+                    option.textContent = theme;
+                    themeSuggestions.appendChild(option);
+                });
+            });
+        });
+
+        // 提案されたテーマを入力欄に反映
+        themeSuggestions.addEventListener('change', () => {
+            themeInput.value = themeSuggestions.value;
+        });
+    </script>
+</body>
+</html>

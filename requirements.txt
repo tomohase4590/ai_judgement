@@ -1,0 +1,7 @@
+Flask
+Flask-SocketIO
+Flask-CORS
+Flask-Session
+google-generativeai
+markdown
+# pip install -r requirements.txt

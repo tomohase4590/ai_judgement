@@ -1,0 +1,74 @@
+<!-- ページ説明 -->
+<!-- 未完成(「追加機能」のページはまだ接続されてない)-->
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEW作品</title>
+    <!-- <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <input type="checkbox" id="menu_btn">
+    <label class="menu-btn" for="menu_btn">
+        <i class="fa fa-times" aria-hidden="true"></i>
+    </label>
+    <div class="con">
+        <canvas id="canvas" style="background:#111"></canvas>
+    </div>
+    <div class="wrapper">
+        <ul class="menu">
+            <li class="AIvsAI"><a href="#">AIvsAI</a></li>
+            <li class="AIvs人" data-url="{{ url_for('AIvs人') }}"><a>AIvs人</a></li>
+            <li class="人vs人"><a href="http://localhost:5173/">人vs人</a></li>
+        </ul>
+    </div>
+    <div class="wrapper_1">
+        <div class="theme">
+            <h1>えーあいじゃっじめんと</h1>
+        </div>
+    </div>
+    <div class="wrapper_2">
+        <div>
+            <h1>グループ</h1>
+        </div>
+    </div>
+    <div class="wrapper_3">
+        <div class="members">
+            <h1>❘ 長谷川 寛寿 ❘</h1>
+        </div>
+    </div>
+    <script>
+        // // クリックイベントを設定
+        // document.querySelectorAll('.AIvsAI').forEach(function(element) {
+        //     element.addEventListener('click', function() {
+        //         const targetUrl = this.getAttribute('data-url');
+        //         window.location.href = targetUrl; // Flaskルートへ移動
+        //     });
+        // });
+        // クリックイベントを設定
+        document.querySelectorAll('.AIvs人').forEach(function(element) {
+            element.addEventListener('click', function() {
+                const targetUrl = this.getAttribute('data-url');
+                window.location.href = targetUrl; // Flaskルートへ移動
+            });
+        });
+        // クリックイベントを設定
+        
+        // document.querySelectorAll('.人vs人').forEach(function(element) {
+        //     element.addEventListener('click', function() {
+        //         const targetUrl = this.getAttribute('data-url');
+        //         window.location.href = targetUrl; // Flaskルートへ移動
+        //     });
+        // });
+    </script>
+</body>
+
+</html>
